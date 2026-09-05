@@ -14,30 +14,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle
+      - name: Setup Gradle 8.11.1
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
 
-      - name: Extract Android project
+      - name: Extract Android project v2.2
         run: |
           rm -rf android_project
-          mkdir android_project
-          unzip -o BlockBlastLiveHelper_Revised_v2.1.zip -d android_project
+          mkdir -p android_project
+          unzip -o BlockBlastLiveHelper_Revised_v2.2.zip -d android_project
 
-      - name: Check project
+      - name: Check project structure
         working-directory: android_project
         run: |
-          echo "=== Project files ==="
+          echo "=== ROOT ==="
           ls -la
-          echo "=== App files ==="
+          echo "=== APP ==="
           ls -la app
+          echo "=== KOTLIN FILES ==="
+          find app/src/main/kotlin -type f -name "*.kt" -print
 
       - name: Build Debug APK
         working-directory: android_project
@@ -46,12 +48,12 @@ jobs:
 
       - name: Find APK
         run: |
-          echo "=== APK files ==="
+          echo "=== GENERATED APK ==="
           find android_project/app/build/outputs/apk -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BlockBlastLiveHelper-v2.1
+          name: BlockBlastLiveHelper-v2.2
           path: android_project/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
