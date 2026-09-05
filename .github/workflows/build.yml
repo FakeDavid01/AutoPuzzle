@@ -1,4 +1,4 @@
-name: Build APK
+name: Build Block Blast Live Helper
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -20,40 +20,34 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle 8.11.1
+      - name: Extract v2.4 project
+        run: |
+          rm -rf android_project
+          mkdir android_project
+          unzip -q BlockBlastLiveHelper_Revised_v2.4.zip -d android_project
+
+          if [ -d "android_project/android_project" ]; then
+            shopt -s dotglob
+            mv android_project/android_project/* android_project/
+            rm -rf android_project/android_project
+          fi
+
+          echo "=== Project structure ==="
+          find android_project -maxdepth 3 -type f | sort
+
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-
-      - name: Extract Android project v2.2
-        run: |
-          rm -rf android_project
-          mkdir -p android_project
-          unzip -o BlockBlastLiveHelper_Revised_v2.2.zip -d android_project
-
-      - name: Check project structure
-        working-directory: android_project
-        run: |
-          echo "=== ROOT ==="
-          ls -la
-          echo "=== APP ==="
-          ls -la app
-          echo "=== KOTLIN FILES ==="
-          find app/src/main/kotlin -type f -name "*.kt" -print
 
       - name: Build Debug APK
         working-directory: android_project
         run: |
           gradle --no-daemon :app:assembleDebug --stacktrace
 
-      - name: Find APK
-        run: |
-          echo "=== GENERATED APK ==="
-          find android_project/app/build/outputs/apk -type f -name "*.apk" -print
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BlockBlastLiveHelper-v2.2
+          name: BlockBlastLiveHelper-v2.4
           path: android_project/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
