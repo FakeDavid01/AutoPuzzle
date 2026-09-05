@@ -48,7 +48,10 @@ jobs:
 
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
-        run: gradle assembleDebug --stacktrace
+        run: |
+          gradle assembleDebug --stacktrace \
+            -Pandroid.javaCompile.suppressSourceTargetDeprecationWarning=true \
+            -Pkotlin.jvm.target.validation.mode=warning
 
       - name: Find APK
         run: |
