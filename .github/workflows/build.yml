@@ -29,15 +29,29 @@ jobs:
         run: |
           rm -rf android_project
           mkdir android_project
-          unzip -o BlockBlastLiveHelper_Revised_v2.zip -d android_project
+          unzip -o BlockBlastLiveHelper_Revised_v2.1.zip -d android_project
+
+      - name: Check project
+        working-directory: android_project
+        run: |
+          echo "=== Project files ==="
+          ls -la
+          echo "=== App files ==="
+          ls -la app
 
       - name: Build Debug APK
         working-directory: android_project
         run: |
           gradle --no-daemon :app:assembleDebug --stacktrace
 
+      - name: Find APK
+        run: |
+          echo "=== APK files ==="
+          find android_project/app/build/outputs/apk -type f -name "*.apk" -print
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BlockBlastLiveHelper-v2
+          name: BlockBlastLiveHelper-v2.1
           path: android_project/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
